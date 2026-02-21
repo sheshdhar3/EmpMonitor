@@ -1,0 +1,46 @@
+const express = require('express');
+const router = express.Router();
+
+/**
+ * Agent Authentication Middleware
+ */
+function agentAuth(req, res, next) {
+  const expectedToken = process.env.AGENT_API_TOKEN;
+
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Missing Authorization header' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+
+  if (token !== expectedToken) {
+    return res.status(401).json({ message: 'Invalid agent token' });
+  }
+
+  next();
+}
+
+/**
+ * Heartbeat API
+ */
+router.post('/heartbeat', agentAuth, async (req, res) => {
+  try {
+    const { hostname, user, platform } = req.body;
+
+    console.log('Heartbeat received:', {
+      hostname,
+      user,
+      platform
+    });
+
+    return res.status(200).json({ message: 'Heartbeat OK' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
+

@@ -18,6 +18,16 @@ const initServer = async () => {
   try {
     await mongoDB.connect();
     const app = express();
+
+	  // Health check endpoint for Docker / Kubernetes
+    app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        service: 'agent',
+        uptime: process.uptime()
+        });
+    });
+
     const port = process.env.PORT || 3000;
   
     app.use(express.json({ limit: '50mb' }));

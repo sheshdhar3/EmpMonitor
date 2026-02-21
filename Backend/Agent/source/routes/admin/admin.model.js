@@ -1,9 +1,11 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+
 
 const algorithm = 'aes-256-cbc';
-const key = crypto.createHash('sha256').update(process.env.JWT_SECRET).digest('base64').substr(0, 32);
+const JWT_SECRET = process.env.JWT_SECRET || 'EMP_MONITOR_AGENT_SECRET_2026';
+
+const key = crypto.createHash('sha256').update(JWT_SECRET).digest('base64').substr(0, 32);
 
 const MySql = require('../../database/MySqlConnection').getInstance();
 
@@ -40,7 +42,7 @@ class AuthModel {
 
     generateToken(payload) {
         try {
-            return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+            return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
         } catch (error) {
             console.error('Error in generateToken:', error);
             throw error;

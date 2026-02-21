@@ -48,32 +48,43 @@ class helper
                 }
                 break; 
             case "post":
-                $result = [];
-                $response = null; 
-                try { 
-                    $response = $this->client->request('POST', $api_url, [ 
-                        'form_params' => $data,
-                        'headers' => [
-                            'user-agent' => $_SERVER['HTTP_USER_AGENT'],
-                            'Content-Type' => 'application/x-www-form-urlencoded',
-                        ]
-                    ]);
-                    if ($response->getStatusCode() == 200) {
-                        $data = json_decode($response->getBody()->getContents(), true);
-                        $result['statusCode'] = $response->getStatusCode();
-                        $result['data'] = $data;
+               $result = [];
+               $response = null;
 
-                        return $result;
-                    } else {
-                        return (['status' => 'failed', 'code' => 500, 'message' => 'The Server is temporarily unable to service your request due to maintenance downtime. Please try later']);
-                    }
-                } catch (Exception $e) {
-                    $response->code = 400;
-                    $response->message = $e->getMessage();
-                    Log::info('Exception postApiCall post' . $e->getLine() . "=> code =>" . $e->getCode() . " => message =>  " . $e->getMessage());
-                    return $response;
-                } 
-                break;
+               try {
+                   $options = [
+                       'headers' => [
+                           'user-agent'   => $_SERVER['HTTP_USER_AGENT'] ?? 'EmpMonitor-Frontend',
+                           'Authorization'=> 'Bearer ' . $session_token,
+                           'Accept'       => 'application/json',
+                       ]
+                   ];
+
+                  if ($is_multipart) {
+                  $options['multipart'] = $data;
+                  } else {
+                     $options['form_params'] = $data;
+                  }
+
+                  $response = $this->client->request('POST', $api_url, $options);
+
+                  $result = json_decode($response->getBody()->getContents(), true);
+                  return $result;
+
+            } catch (Exception $e) {
+                Log::info(
+                    'Exception postApiCall case-post ' .
+                    $e->getLine() .
+                    " => code => " . $e->getCode() .
+                    " => message => " . $e->getMessage()
+                );
+                return [
+                    'code' => 400,
+                    'message' => $e->getMessage()
+                ];
+           }
+           break;
+
             case "post_with_token":
                 $result = [];
                 $response = null; 
@@ -81,9 +92,10 @@ class helper
                     $response = $this->client->request('POST', $api_url, [ 
                         'form_params' => $data,
                         'headers' => [
-                            'user-agent' => $_SERVER['HTTP_USER_AGENT'],
-                            'Content-Type' => 'application/x-www-form-urlencoded',
-                            'Authorization' => 'Bearer ' . $session_token
+				'user-agent' => $_SERVER['HTTP_USER_AGENT'],
+			        'Authorization' => 'Bearer ' . $session_token,
+                                'Content-Type' => 'application/x-www-form-urlencoded',
+                                'Authorization' => 'Bearer ' . $session_token
                             ]
                         ]);
                       if ($response->getStatusCode() == 201 || $response->getStatusCode() == 200) {

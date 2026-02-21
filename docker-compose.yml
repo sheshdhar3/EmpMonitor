@@ -19,7 +19,7 @@ services:
 
   # MongoDB Database
   mongodb:
-    image: mongo:7.0
+    image: mongo:4.4
     container_name: empmonitor_mongodb
     restart: unless-stopped
     environment:
@@ -41,6 +41,8 @@ services:
     ports:
       - "5001:5001"
     environment:
+      - DEFAULT_ADMIN_EMAIL=itsupport@grrgl.com
+      - DEFAULT_ADMIN_PASSWORD=Admin@123
       - NODE_ENV=production
       - PORT=5001
       - DB_HOST=mariadb
@@ -69,6 +71,8 @@ services:
     restart: unless-stopped
     ports:
       - "5002:5002"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - PORT=5002
@@ -80,6 +84,9 @@ services:
       - MYSQL_POOL_CONNECTION_LIMIT=10
       - JWT_SECRET=tfwsIg87P49M1CWCcpJYOtfwsIg87P49M1CWCcpJYOl2FN29fkAjjGQo7hAJtuXK3Ej8Uld
       - MONGO_URI=mongodb://mongodb:27017/empmonitor
+      - AGENT_API_TOKEN=EMP_AGENT_TOKEN_2026_SECURE
+
+
     depends_on:
       - mariadb
       - mongodb
@@ -155,7 +162,7 @@ services:
     container_name: empmonitor_frontend
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8088:8000"
     environment:
       - APP_NAME=Laravel
       - APP_ENV=production

@@ -53,43 +53,63 @@ class UserController extends Controller
         }
     }
 
+   # 99999
     public function loginpageWhitelabel(Request $request, $username = null, $password = null)
     {
-        try {  
-            $username = base64_decode($username);
-            $password = base64_decode($password);
-            if (isset($username) && isset($password)) { 
-                $api_url = env('MAIN_API').'admin/login';
-                $method = "post";  
-                $amemberData = array(
-                    "email" => $username,
-                    "password" => $password, 
-                ); 
-               
-                $adminAuthResponse = $this->helper->postApiCall($method, $api_url, $amemberData);
-            
-                $admin = array( 
-                        'token' => $adminAuthResponse['data']['token'],
-                        'id' => $adminAuthResponse['data']['id'],
-                        'name' => $adminAuthResponse['data']['first_name'],
-                        'email' => $adminAuthResponse['data']['email'],
-                        // 'employee_code' => $adminAuthResponse['data']['employee_code'],
-                        // 'time_zone' => $adminAuthResponse['data']['time_zone'],
-                        'role' => $adminAuthResponse['data']['role'],
-                        'photo_path' => '../' . env('DEFAULT_IMAGE'), 
-                    );
-                    Session::put('admin_session', $admin);
-                    return redirect('admin/employee-details');
-                    } else {
-                         return redirect('admin-login')->with('error', 'Invalid authentication');
-                    }  
-        } catch (\Exception $e) {
-            dd($e);
-            Log::info('Exception ' . $e->getLine() . " => Function Name => loginpageWhitelabel => code =>" . $e->getCode() . " => message =>  " . $e->getMessage());
-            return redirect('admin-login')->with('error', 'Something went wrong. Please contact support Team');
-        }
-    }
+      try {
+        $username = base64_decode($username);
+        $password = base64_decode($password);
 
+        if (isset($username) && isset($password)) {
+
+            // Correct API URL (use AUTH_API not MAIN_API)
+            $api_url = env('AUTH_API') . 'admin/login';
+
+            $loginData = [
+                "email" => $username,
+                "password" => $password,
+            ];
+
+            $response = $this->client->post($api_url, [
+                'form_params' => $loginData,
+                'headers' => [
+                    'user-agent' => $_SERVER['HTTP_USER_AGENT'],
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ]
+            ]);
+
+            $adminAuthResponse = json_decode($response->getBody()->getContents(), true);
+
+            // ✅ IMPORTANT: check response structure
+            if (!isset($adminAuthResponse['token'])) {
+                // if response has "data" or "error", print it
+                dd($adminAuthResponse);
+            }
+
+            $token = $adminAuthResponse['token'];
+
+            $admin = [
+                'id'    => $adminAuthResponse['id'] ?? null,
+                'name'  => $adminAuthResponse['name'] ?? $adminAuthResponse['first_name'] ?? 'Admin',
+                'email' => $adminAuthResponse['email'] ?? null,
+                'role'  => $adminAuthResponse['role'] ?? 'admin',
+                'token' => $token,
+            ];
+
+            Session::put('admin_session', $admin);
+            return redirect('admin/employee-details');
+
+        } else {
+            return redirect('admin-login')->with('error', 'Invalid authentication');
+        }
+    } catch (\Exception $e) {
+        dd($e);
+        Log::info('Exception ' . $e->getLine() . " => Function Name => loginpageWhitelabel => code =>" . $e->getCode() . " => message =>  " . $e->getMessage());
+        return redirect('admin-login')->with('error', 'Something went wrong. Please contact support Team');
+    }
+}
+
+# 000000000000000
     
 
     //curl-execution

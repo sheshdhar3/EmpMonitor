@@ -55,8 +55,7 @@
              
                  <li class="nav-item"><a href="javascript:void(0)" class="right-sidebar-toggle"><label
                             class="mr-1 mb-0">{{ __('messages.welcome') }} </label>
-                        <label
-                            class="mb-0">{{Session::has('admin_session') ? Session::get('admin_session')['name'] : Session::get('employee_session')['first_name'];}}</label></a>
+                        <label class="mb-0"> {{ Session::get('admin_session.name', 'Admin') }}</label>
                 </li>
                 <li class="dropdown nav-item">
                    <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"

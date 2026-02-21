@@ -1,22 +1,7 @@
-'use strict';
+const agentRoutes = require('./agent');
+const dashboardRoutes = require('./dashboard');
 
-const router = require('express').Router();
-const AdminRoutes = require('./admin/admin.routes');
-const { authenticateToken } = require('../middleware/authMiddleware');
-
-class Routes {
-    constructor() {
-        this.myRoutes = router;
-        this.core();
-    }
-
-    core() {
-        this.myRoutes.use('/employee', new AdminRoutes().getRouters());
-    }
-
-    getRouters() {
-        return this.myRoutes;
-    }
-}
-
-module.exports = Routes;
+module.exports = (app) => {
+  app.use('/api/agent', agentRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
+};

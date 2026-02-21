@@ -25,6 +25,16 @@ const initServer = async () => {
 
         const app = express();
 
+	    // Health check endpoint for Docker / Kubernetes
+        app.get('/health', (req, res) => {
+        res.status(200).json({
+        status: 'ok',
+        service: 'agent',
+        uptime: process.uptime()
+          });
+        });
+
+
         const PORT = process.env.PORT || 3000;
 
         const publicFolderPath = path.resolve('public');

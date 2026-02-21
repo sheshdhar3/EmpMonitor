@@ -1,0 +1,33 @@
+const express = require('express');
+const adminRoutes = require('./admin');
+const agentRoutes = require('./agent');   // 👈 ADD
+
+module.exports = (app) => {
+  const router = express.Router();
+
+  router.use('/admin', adminRoutes);
+  router.use('/agent', agentRoutes);       // 👈 ADD
+
+  app.use('/api', router);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
